@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<!-- I was thinking this could be the base template for maybe all pages
+The upper menu could contain options for login and a link to the profile page,
+and the sidemenu could list games or game types etc-->
+
+<html>
+  <header>
+    <title>{% block title %}Title template{% endblock %}</title>
+
+    {% block style %}css{% endblock %}
+
+    {% block header %}<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+{% endblock %}
+  </header>
+
+  <block>
+    <div id="page">
+      <div id="upmenuwrapper">{% block upmenu %}Upper menu template{% endblock %}</div>
+      <div id="sidemenuwrapper">{% block sidemenu %}sidemenu{% endblock %}</div>
+      <div id="content">{% block content %}Content template{% endblock %}</div>
+      <div id="footer">477044 Henry Konnos | 597814 Maimuna Syed | 425737 Lauri Koivisto</div>
+    </div>
+  </block>
+</html>
