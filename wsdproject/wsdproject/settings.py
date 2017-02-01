@@ -75,6 +75,19 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'wsdproject.wsgi.application'
 
+#As per instructions: "You do not need to configure a real SMTP-server, using Django's Console Backend is enough for full points."
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+'''
+EMAIL_HOST = 'smtp server.'
+
+EMAIL_HOST_USER = 'bot'
+
+EMAIL_HOST_PASSWORD = 'botpassword'
+
+EMAIL_PORT = 8000
+
+EMAIL_USE_TLS = True
+'''
 LOGIN_REDIRECT_URL = '/'
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases

@@ -9,6 +9,10 @@ body
   text-align: justify
 }
 
+form
+{
+  white-space: pre;
+}
 
   #upmenuwrapper
   {
