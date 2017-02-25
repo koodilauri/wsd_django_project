@@ -41,7 +41,7 @@ def register(request):
 				salt = sha.hexdigest()[:5]
 				usernamesalt = datas['username']
 				string = salt+usernamesalt
-				datas['activation_key']= hashlib.sha1(string.encode('utf8')).hexdigest()
+				datas['activation_key']= 'activate'# hashlib.sha1(string.encode('utf8')).hexdigest()
 
 				datas['email_path']="templates/ActivationEmail.txt"
 				datas['email_subject']="Activate your account"
