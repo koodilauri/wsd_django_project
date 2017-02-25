@@ -16,6 +16,6 @@
 {% endblock %}
 
 {% block content %}
-<p>Hello, this is the index page</p>
+<p>Hello, this is the index page.</p>
 
 {% endblock %}
