@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Account{% endblock %}
+{{ block.super }}
+{% block style %}<link rel="stylesheet" type="text/css" href="{% static 'gamesite/style.css' %}">{% endblock %}
+
+{% block upmenu %}
+{% include "gamesite/upmenu.html" %}
+{% endblock %}
+
+
+
+{% block sidemenu %}
+{% include "gamesite/sidemenu.html" %}
+{% endblock %}
+
+{% block content %}
+<p>You can add games from this page. Title is the name of your game i.e. Dark Souls.<br/>
+Game_url is the link to your game i.e. http://webcourse.cs.hut.fi/example_game.html.<br/>
+Price is in euros, image_url is the link to a picture if want one for your game.<br/>
+WebsiteURL cannot have any spaces i.e. darksouls and will be used in the sites urls i.e. localhost:8000/game/darksoul.<br/>
+Sid is the seller id, and when implemented will be somthing like 10982991darksouls, and will be used to generate the Skey from the iframe below.</p>
+
+<form method="POST">
+    {% csrf_token %}
+    {{ form }}
+     <input type="submit">
+</form>
+
+<iframe name="myFrame" src="http://payments.webcourse.niksula.hut.fi/key/" width=70% height=100%>
+   Your browser does not support inline frames.
+</iframe>
+{% endblock %}

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Index{% endblock %}
+{% block title %}Account{% endblock %}
 {{ block.super }}
 {% block style %}<link rel="stylesheet" type="text/css" href="{% static 'gamesite/style.css' %}">{% endblock %}
 
@@ -17,4 +17,10 @@
 
 {% block content %}
 <p>Hello, Welcome to the Front Page.</p>
+
+
+
+<iframe name="myFrame" src="http://payments.webcourse.niksula.hut.fi/key/" width=70% height=100%>
+   Your browser does not support inline frames.
+</iframe>
 {% endblock %}

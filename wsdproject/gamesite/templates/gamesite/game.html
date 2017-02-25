@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block title %}Game{% endblock %}
+{{ block.super }}
+{% block style %}<link rel="stylesheet" type="text/css" href="{% static '/gamesite/style.css' %}">
+{% endblock %}
+
+
+{% block upmenu %}
+{% include "gamesite/upmenu.html" %}
+{% endblock %}
+
+
+{% block sidemenu %}
+{% include "gamesite/sidemenu.html" %}
+{% endblock %}
+
+{% block header%}
+<meta charset="utf-8">
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script>
+
+var gameurl = "{{websiteURL}}";
+console.log(gameurl)
+var token = '{{ csrf_token }}';
+console.log(token)
+
+  /* global $ */
+  $(document).ready(function() {
+    'use strict';
+    var csrftoken = token;
+        function csrfSafeMethod(method) {
+            // these HTTP methods do not require CSRF protection
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+    $(window).on('message', function(evt) {
+      //Note that messages from all origins are accepted
+      if (evt.originalEvent.origin == "{{origin}}"){
+      //Get data from sent message
+      var data = evt.originalEvent.data;
+      //Create a new list item based on the data
+      switch (data['messageType']){
+        case 'SETTING':
+          $('#encoder_iframe').css({"width":data['options']['width'], "height":data['options']['height']});
+          break;
+          /*the next ones I added just to see if the messages are coming trough,
+          SAVE should save the gameState for the player in the Game model (it must be
+        created first), LOAD_REQUEST gets an existing save (if there is one) and
+        we must send a LOAD message to the game containing the save. SCORE is supposed
+        to be saved in the Game models highscore table, and finally ERROR messages are
+        sent to the game in case of errors*/
+        case 'SCORE':
+          var newItem = '\n\t<li>' + data['messageType'] +'<ul><li>'+ data['score'] +'</li></ul></li>';
+          $('#actions').prepend(newItem);
+          $.ajax({
+              type:'POST',
+              url:"/submitscore",
+              data:{
+                  'gameurl' : gameurl,
+                  'score' : data.score
+              }
+          })
+          break;
+        case 'LOAD_REQUEST':
+          var newItem = '\n\t<li>' + data['messageType'] +'<ul><li>'+ data['gameState'] +'</li></ul></li>';
+          $('#actions').prepend(newItem);
+          var message = {
+            messageType: "LOAD", gameState: { playerItems: ["Sword", "Wizard Hat"], score: 506.0 }
+          };
+          evt.originalEvent.source.postMessage(message, evt.originalEvent.origin);
+          break;
+        case 'SAVE':
+          var newItem = '\n\t<li>' + data['messageType'] +'<ul><li>'+ data['gameState'].score +'</li></ul></li>';
+          $('#actions').prepend(newItem);
+          break;
+      };
+    };});
+  });
+  </script>{% endblock %}
+
+
+{% block content %}
+<h1>{{title}}</h1>
+
+<iframe id="encoder_iframe" src={{gameurl}}></iframe>
+
+<h2>Highscores:</h2>
+<div>
+    <table>
+        <tbody>
+            {% for s in score %}
+                <tr>
+                    <td>{{s}}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<ul id="actions">
+  </ul>
+
+    <br><br>
+  <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank"> <!-- {{ request.path }} -->
+	 FB
+  </a>
+    <a href="https://plus.google.com/share?url={{ request.build_absolute_uri}}" target="_blank"> <!-- {{ request.path }} -->
+google plus
+  </a>
+  <a href="https://www.twitter.com/home?status=Check%20this%20game%20out!{{ request.build_absolute_uri }}" target="_blank">
+twitter
+  </a>
+  <br><br>
+{% endblock %}

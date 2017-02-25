@@ -10,7 +10,17 @@ urlpatterns = [
     url(r"^register$", login_forbidden(views.register), name='register'),
     url(r"^activate/(?P<key>.+)$", views.activation, name='activation'),
     url(r"^new-activation-link/(?P<username>\w+)/$", views.new_activation_link, name='new_activation_link'),
-    url(r"^kirjaudu$", views.my_view),
+    url(r"^account/(?P<username>\w+)/$", views.my_view, name='myview'),
     url(r"^thanks/", views.thanks, name='thanks'),
-    url(r"^example_game$", views.example_game, name='example_game')
+	url(r"gameshop$", views.gameshop, name='gameshop'),
+	url(r'^gameshop/(?P<id>[0-9]+)/$', views.game_detail, name='detail'),
+
+	url(r'^gameshop/(?P<id>[0-9]+)/payment$', views.payment, name='payment'),
+	url(r'^payment/success$', views.paymentsuccess, name='payment success'),
+	url(r'^gameshop/(?P<id>[0-9]+)/payment_cancel$$', views.paymentcancel, name='payment cancel'),
+	url(r'^gameshop/(?P<id>[0-9]+)/payment_error$', views.paymenterror, name='payment error'),
+
+    url(r'^game/(?P<gametitle>\w+)/$', views.gameview, name='gameview'),
+    url(r"^addgame$", views.addgame, name='addgame'),
+    url(r"^submitscore$", views.submit_score, name='submit_score'),
 ]
