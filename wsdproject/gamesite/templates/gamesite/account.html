@@ -9,18 +9,48 @@
 {% include "gamesite/upmenu.html" %}
 {% endblock %}
 
+{% block header %}
+<meta charset="utf-8">
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script>
+var list = '{{dates}}';
+list = list.split('£');
+$(document).ready(function() {
+  if (list !=''){
+for (var i=0; i< list.length;i++){
+  lis = list[i].split('|');
+  str = ":contains('"+lis[0]+"')"
 
+  $("li").filter(str).append("<ol>"+lis[1]+"</ol>")
+};};});
+
+
+</script>
+{% endblock %}
 
 {% block sidemenu %}
 {% include "gamesite/sidemenu.html" %}
 {% endblock %}
 
 {% block content %}
-<p>Hello, Welcome to the Front Page.</p>
+<ul>
+<li>{{ user.username }}</li>
+<li>{{ user.email }}</li>
+</ul>
 
 
+{% if games %}
+Games you own:
+   {% for game in games %}
+   <ul>
 
-<iframe name="myFrame" src="http://payments.webcourse.niksula.hut.fi/key/" width=70% height=100%>
-   Your browser does not support inline frames.
-</iframe>
+    <li>{{ game.title }}
+    </li>
+
+   </ul>
+   {% endfor %}
+
+ {% else %}
+  <p> You have not uploaded any games in DB </p>
+ {% endif %}
 {% endblock %}

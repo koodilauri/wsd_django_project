@@ -1,7 +1,10 @@
 <ul id="sidemenu">
-  <li><a href={{ myviewurlo }}>User Profile {{ myviewo }}</a></li>
-   <li><a href={{ example_game }}>Game Shop{{ example_game }}</a></li>
 
+   <li><a href={% url 'gameshop' %}>All games</a></li>
+   <li><a href='/account'>Profile</a></li>
+   <li><a href={% url 'addgame' %}>Add Game</a></li>
+
+   <!--
    <li><a href={{ example_game }}>Adventure{{ example_game }}</a></li>
 
    <li><a href={{ example_game }}>ARPG{{ example_game }}</a></li>
@@ -9,9 +12,9 @@
    <li><a href={{ example_game }}>FPS{{ example_game }}</a></li>
 
    <li><a href={{ example_game }}>MMO{{ example_game }}</a></li>
-
+   <li><a href={{ registerurl }}>{{ register }}</a></li>
 
   {% for i in "xxxxxxxxxx" %}
   <li>menu template</li>
-  {% endfor %}
+  {% endfor %} -->
 </ul>

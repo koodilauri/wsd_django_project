@@ -1,20 +1,22 @@
-{% extends 'base.html' %}
-{% load staticfiles %}
+{% extends "base.html" %}
+{% load static %}
 
 {% block title %}Payment{% endblock %}
 {{ block.super }}
-{% block style %}<link rel="stylesheet" type="text/css" href="{% static '/gamesite/style.css' %}">{% endblock %}
+{% block style %}<link rel="stylesheet" type="text/css" href="{% static 'gamesite/style.css' %}">{% endblock %}
 
 {% block upmenu %}
 {% include "gamesite/upmenu.html" %}
 {% endblock %}
+
+
 
 {% block sidemenu %}
 {% include "gamesite/sidemenu.html" %}
 {% endblock %}
 
 {% block content %}
-  <h2>Payment</h2><!--
+  <h2>Payments</h2><!--
    <form method="post">
 		{% csrf_token %}
 		{{ form }}
@@ -37,6 +39,7 @@
     <label for="id_amount">Amount: {{ amount }}</label>
     <input type="hidden" id="id_amount" name="amount" value={{ amount }} />
     <input type="submit" value="Accept Payment"/>
+	<button><a href="http://localhost:8000/payment/payment_cancel">Cancel</a></button>
 </form>
 <br><br><br>
 {% endblock %}

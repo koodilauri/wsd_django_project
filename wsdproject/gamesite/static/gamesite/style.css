@@ -1,4 +1,5 @@
 
+
 body
 {
   margin: 0;
@@ -24,6 +25,17 @@ form
     text-align: center
   }
 
+  a
+  {
+    text-decoration: none;
+    color: black;
+  }
+
+  a:hover
+  {
+    text-decoration: underline;
+  }
+
   #sidemenuwrapper
   {
     width: 100px;
@@ -32,7 +44,9 @@ form
     margin: 0 10px 10px 10px;
     padding: 0;
     background-color: #b78961
+
   }
+
 
   #sidemenu
 {
@@ -48,6 +62,23 @@ form
     background-color: #ffffff
   }
 
+  #sidemenu a
+  {
+    text-align: right;
+  }
+
+  #sidemenu a:hover
+  {
+    padding: 1px 2px 1px 2px;
+    text-decoration: underline;
+  }
+
+  #sidemenu a{
+    color: black;
+    text-decoration: none;
+  }
+
+
   #content
   {
     font-size: .75em;
@@ -56,6 +87,38 @@ form
     border: 5px solid #b78961;
     background-color: #ffffff
   }
+
+  .gamelist
+  {
+    columns: 1;
+    list-style:none;
+  }
+
+
+  .gamelisting
+  {
+    width: 120px;
+    height: 100px;
+    float: left;
+    margin: 15px;
+    text-align: center
+  }
+
+    .gamelisting img
+    {
+      border: 1px solid #5366a6;
+    }
+
+    .gamelisting a
+    {
+      text-decoration:none;
+      font-weight: bold
+    }
+
+    a:hover
+    {
+      text-decoration: underline;
+    }
 
 
   #footer

@@ -1,19 +1,24 @@
-{% extends 'base.html' %}
-{% load staticfiles %}
+{% extends "base.html" %}
+{% load static %}
 
-{% block title %}GameShop{% endblock %}
+{% block title %}Payment{% endblock %}
 {{ block.super }}
-{% block style %}<link rel="stylesheet" type="text/css" href="{% static '/gamesite/style.css' %}">{% endblock %}
+{% block style %}
+
+<meta http-equiv="refresh" content="3;url=http://localhost:8000/gameshop">
+<link rel="stylesheet" type="text/css" href="{% static 'gamesite/style.css' %}">{% endblock %}
 
 {% block upmenu %}
 {% include "gamesite/upmenu.html" %}
 {% endblock %}
+
+
 
 {% block sidemenu %}
 {% include "gamesite/sidemenu.html" %}
 {% endblock %}
 
 {% block content %}
-  <h2>Payment Successful!</h2>
-  
+  <h2>Payment Successful!  Redirecting you to All games...</h2>
+
 {% endblock %}

@@ -1,24 +1,51 @@
-{% extends 'base.html' %}
-{% load staticfiles %}
+{% extends "base.html" %}
+{% load static %}
 
-{% block title %}GameShop{% endblock %}
+{% block title %}All games{% endblock %}
 {{ block.super }}
-{% block style %}<link rel="stylesheet" type="text/css" href="{% static '/gamesite/style.css' %}">{% endblock %}
+{% block style %}<link rel="stylesheet" type="text/css" href="{% static 'gamesite/style.css' %}">{% endblock %}
+{% block header%}
+<meta charset="utf-8">
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script>
+var list = '{{boughtgames}}';
+list = list.split('|');
+$(document).ready(function() {
+for (var i=0; i< list.length;i++){
+  console.log(list[i]);
+  $('.'+list[i]).children(':button').text('Play now')
+};
+});
+</script>
+{% endblock %}
 
 {% block upmenu %}
 {% include "gamesite/upmenu.html" %}
 {% endblock %}
+
+
 
 {% block sidemenu %}
 {% include "gamesite/sidemenu.html" %}
 {% endblock %}
 
 {% block content %}
-  <h2>Game Shop</h2>
+  <h2>All games</h2>
+
   {% if all_games %}
-	  <ul>
+	  <ul class="gamelist">
 	   {% for game in all_games %}
-			<li><a href="/gameshop/{{ game.id}}/">{{ game.title }}</a><li>
+			<li class="gamelisting">
+        <div class={{game.websiteURL}}>
+        <a href="/game/{{ game.websiteURL}}/">{{ game.title }}
+					<br>
+					<img src="{{game.image_url}}" alt="{{game.game_url}}" style="width:42px;height:42px;border:0;">
+				</a>
+				<br>
+				<button type="button" onclick="location.href='/gameshop/{{ game.id}}/payment'">Buy for  ‎€{{ game.price }}</button>
+				<br><br></div>
+			</li>
+
 	   {% endfor %}
 	   </ul>
    {% else %}
