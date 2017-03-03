@@ -167,7 +167,7 @@ def my_view(request):
 		for i in p:
 			n=i.pid.index('|')
 			if i.pid[n+1:] == g.websiteURL and i.result=='success':
-				dates += str(g.title) +'|'+ datetime.datetime.strftime(i.date, "%Y-%m-%d %H:%M:%S") +'£'
+				dates += str(g.title) +'|'+ datetime.datetime.strftime(i.date, "%Y-%m-%d %H:%M:%S") +'#'
 		data['dates'] += dates
 	data['user']=request.user
 	data['dates'] = data['dates'][0:-1]
