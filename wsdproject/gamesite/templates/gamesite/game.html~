@@ -43,7 +43,7 @@ console.log(token)
         });
     $(window).on('message', function(evt) {
       //Note that messages from all origins are accepted
-      if (evt.originalEvent.origin == "{{origin}}"){
+      if (evt.originalEvent.origin == '{{origin}}'){
       //Get data from sent message
       var data = evt.originalEvent.data;
       //Create a new list item based on the data

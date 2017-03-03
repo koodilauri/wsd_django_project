@@ -22,9 +22,9 @@
 <script>
 
 var gameurl = "{{websiteURL}}";
-console.log(gameurl)
+console.log(gameurl);
 var token = '{{ csrf_token }}';
-console.log(token)
+console.log(token);
 
   /* global $ */
   $(document).ready(function() {
@@ -43,13 +43,13 @@ console.log(token)
         });
     $(window).on('message', function(evt) {
       //Note that messages from all origins are accepted
-      if (evt.originalEvent.origin == '{{origin}}'){
+      if (evt.originalEvent.origin == "{{origin}}"){
       //Get data from sent message
       var data = evt.originalEvent.data;
       //Create a new list item based on the data
-      switch (data['messageType']){
+      switch (data.messageType){
         case 'SETTING':
-          $('#encoder_iframe').css({"width":data['options']['width'], "height":data['options']['height']});
+          $('#encoder_iframe').css({"width":data.options.width, "height":data.options.height});
           break;
           /*the next ones I added just to see if the messages are coming trough,
           SAVE should save the gameState for the player in the Game model (it must be
@@ -58,7 +58,7 @@ console.log(token)
         to be saved in the Game models highscore table, and finally ERROR messages are
         sent to the game in case of errors*/
         case 'SCORE':
-          var newItem = '\n\t<li>' + data['messageType'] +'<ul><li>'+ data['score'] +'</li></ul></li>';
+          var newItem = '\n\t<li>' + data.messageType +'<ul><li>'+ data.score +'</li></ul></li>';
           $('#actions').prepend(newItem);
           $.ajax({
               type:'POST',
@@ -67,10 +67,10 @@ console.log(token)
                   'gameurl' : gameurl,
                   'score' : data.score
               }
-          })
+          });
           break;
         case 'LOAD_REQUEST':
-          var newItem = '\n\t<li>' + data['messageType'] +'<ul><li>'+ data['gameState'] +'</li></ul></li>';
+          var newItem = '\n\t<li>' + data.messageType +'<ul><li>'+ data.gameState +'</li></ul></li>';
           $('#actions').prepend(newItem);
           var message = {
             messageType: "LOAD", gameState: { playerItems: ["Sword", "Wizard Hat"], score: 506.0 }
@@ -78,11 +78,11 @@ console.log(token)
           evt.originalEvent.source.postMessage(message, evt.originalEvent.origin);
           break;
         case 'SAVE':
-          var newItem = '\n\t<li>' + data['messageType'] +'<ul><li>'+ data['gameState'].score +'</li></ul></li>';
+          var newItem = '\n\t<li>' + data.messageType +'<ul><li>'+ data.gameState.score +'</li></ul></li>';
           $('#actions').prepend(newItem);
           break;
-      };
-    };});
+      }
+    }});
   });
   </script>{% endblock %}
 
