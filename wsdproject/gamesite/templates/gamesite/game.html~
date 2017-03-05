@@ -22,13 +22,15 @@
 <script>
 
 var gameurl = "{{websiteURL}}";
-console.log(gameurl);
+console.log(gameurl)
 var token = '{{ csrf_token }}';
-console.log(token);
+console.log(token)
+var saveData = {};
 
   /* global $ */
   $(document).ready(function() {
     'use strict';
+    var iframe = document.getElementById('encoder_iframe');
     var csrftoken = token;
         function csrfSafeMethod(method) {
             // these HTTP methods do not require CSRF protection
@@ -47,9 +49,9 @@ console.log(token);
       //Get data from sent message
       var data = evt.originalEvent.data;
       //Create a new list item based on the data
-      switch (data.messageType){
+      switch (data['messageType']){
         case 'SETTING':
-          $('#encoder_iframe').css({"width":data.options.width, "height":data.options.height});
+          $('#encoder_iframe').css({"width":data['options']['width'], "height":data['options']['height']});
           break;
           /*the next ones I added just to see if the messages are coming trough,
           SAVE should save the gameState for the player in the Game model (it must be
@@ -58,7 +60,7 @@ console.log(token);
         to be saved in the Game models highscore table, and finally ERROR messages are
         sent to the game in case of errors*/
         case 'SCORE':
-          var newItem = '\n\t<li>' + data.messageType +'<ul><li>'+ data.score +'</li></ul></li>';
+          var newItem = '\n\t<li>' + data['messageType'] +'<ul><li>'+ data['score'] +'</li></ul></li>';
           $('#actions').prepend(newItem);
           $.ajax({
               type:'POST',
@@ -67,22 +69,61 @@ console.log(token);
                   'gameurl' : gameurl,
                   'score' : data.score
               }
-          });
+          })
           break;
         case 'LOAD_REQUEST':
-          var newItem = '\n\t<li>' + data.messageType +'<ul><li>'+ data.gameState +'</li></ul></li>';
+          var newItem = '\n\t<li>' + data['messageType'] +'<ul><li>'+ data['gameState'] +'</li></ul></li>';
           $('#actions').prepend(newItem);
           var message = {
             messageType: "LOAD", gameState: { playerItems: ["Sword", "Wizard Hat"], score: 506.0 }
           };
-          evt.originalEvent.source.postMessage(message, evt.originalEvent.origin);
+          //evt.originalEvent.source.postMessage(message, evt.originalEvent.origin);
+          $.ajax({
+              type:"GET",
+              url:"/gamesave",
+              data: {
+                  'gameurl': gameurl
+              },
+              success: function(data) {
+                  if(data == "None") {
+                      var msg = {
+                          messageType: "MESSAGE",
+                          message: "No game save to load"
+                      };
+                      iframe.contentWindow.postMessage(msg,"*");
+                  } else {
+                      saveData = JSON.parse(data);
+                      var msg = {
+                          "gameState": saveData,
+                          "messageType": "LOAD"
+                      };
+                      console.log(saveData)
+                      iframe.contentWindow.postMessage(msg, "*");
+
+                  }
+              }
+
+          })
           break;
         case 'SAVE':
-          var newItem = '\n\t<li>' + data.messageType +'<ul><li>'+ data.gameState.score +'</li></ul></li>';
+          var newItem = '\n\t<li>' + data['messageType'] +'<ul><li>'+ data['gameState'].score +'</li></ul></li>';
           $('#actions').prepend(newItem);
+          saveData = data.gameState;
+          $.ajax({
+              type:"POST",
+              url:"/gamesave/",
+              data: {
+                  'gameurl': gameurl,
+                  'gameState':JSON.stringify(saveData)
+              },
+              success: function (){
+                  alert("Saved");
+              }
+          })
+
           break;
-      }
-    }});
+      };
+    };});
   });
   </script>{% endblock %}
 
