@@ -120,6 +120,10 @@ form
       text-decoration: underline;
     }
 
+    .gameurl
+    {
+      font-weight: bold;
+    }
 
   #footer
   {

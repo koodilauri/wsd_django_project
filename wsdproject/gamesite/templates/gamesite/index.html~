@@ -1,9 +1,9 @@
 {% extends "base.html" %}
-{% load staticfiles %}
+{% load static %}
 
 {% block title %}Index{% endblock %}
 {{ block.super }}
-{% block style %}<link rel="stylesheet" type="text/css" href="{% static '/gamesite/style.css' %}">{% endblock %}
+{% block style %}<link rel="stylesheet" type="text/css" href="{% static 'gamesite/style.css' %}">{% endblock %}
 
 {% block upmenu %}
 {% include "gamesite/upmenu.html" %}
@@ -16,6 +16,5 @@
 {% endblock %}
 
 {% block content %}
-<p>Hello, this is the index page.</p>
-
+<p>Hello, Welcome to the Front Page.</p>
 {% endblock %}

@@ -19,7 +19,7 @@ $(document).ready(function() {
   if (list !=''){
 for (var i=0; i< list.length;i++){
   lis = list[i].split('|');
-  str = ":contains('"+lis[0]+"')"
+  str = "."+lis[0]
 
   $("li").filter(str).append("<ol>"+lis[1]+"</ol>")
 };};});
@@ -40,11 +40,11 @@ for (var i=0; i< list.length;i++){
 
 
 {% if games %}
-Games you own:
+Games you have uploaded to DB:
    {% for game in games %}
-   <ul>
+   <ul class=yourgames>
 
-    <li>{{ game.title }}
+    <li class={{game.websiteURL}}><a class='gameurl' href='/game/{{game.websiteURL}}'>{{ game.title }}</a>: <a href='/game/{{game.websiteURL}}/edit'>Edit</a>, <a href='/game/{{game.websiteURL}}/delete'>Delete</a>
     </li>
 
    </ul>

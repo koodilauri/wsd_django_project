@@ -86,7 +86,7 @@ def activation(request, key):
 	#If user is already active, simply display error message
 	else:
 		return render(request, "gamesite/index.html", context)
-	context['message'] = "Something went wrong eith activation..."
+	context['message'] = "Something went wrong with activation... Try requesting a new activation key from url /new_activation_link/*yourusername*"
 	return render(request, "gamesite/index.html", context)
 
 def new_activation_link(request, username):
@@ -97,6 +97,7 @@ def new_activation_link(request, username):
 		datas['username']=user.username
 		datas['email']=user.email
 
+		#generate a new activation key
 		rnd = str(random.random()).encode('utf8')
 		sha = hashlib.sha1(rnd)
 		salt = sha.hexdigest()[:5]
@@ -163,13 +164,18 @@ def gameview(request, gametitle):
 	game = get_object_or_404(Game, websiteURL = gametitle)
 	list = Payment.objects.all()
 	for i in list:
-		if i.pid == request.user.username+'|'+game.websiteURL:
-			if i.result == 'success':
+		if i.pid == request.user.username+'|'+game.websiteURL: #Check if user has made a payment for this game
+			if i.result == 'success': #check if the payment is successfull
+
+				#Here we get the origin of the game so we know what messages to accept
 				str1 = game.game_url
 				score = ScoreBoard.objects.filter(websiteURL = gametitle).order_by('score').reverse()[:5]
 				i = str1.index('/', 8)
+
 				context =  {'logouturl': '/logout', 'logout':'logout', 'title': game.title, 'gameurl':game.game_url, 'origin':str1[0:i], 'websiteURL':gametitle, 'score':score}
 				return render(request, 'gamesite/game.html', context)
+
+	#If you are the developer, you get automatically access to your game
 	if game.developer.username == request.user.username:
 		str1 = game.game_url
 		score = ScoreBoard.objects.filter(websiteURL = gametitle).order_by('score').reverse()[:5]
@@ -179,6 +185,45 @@ def gameview(request, gametitle):
 
 	return redirect('payment', game.id)
 
+@login_required(login_url="/login/")#the view below can only be accessed if user has logged in
+def editgame(request, gametitle):
+	game = get_object_or_404(Game, websiteURL = gametitle)
+	context =  {'logouturl': '/logout', 'logout':'logout', 'title': game.title}
+	if request.method == 'GET':
+		if game.developer.username == request.user.username:
+			#Here we render the initial view when the dev comes to this url
+			form = GameForm(initial={'title':game.title, 'websiteURL':'websiteURL cannot be changed', 'game_url':game.game_url, 'price':game.price, 'image_url':game.image_url, 'genre':game.genre})
+			form.title = game.title
+			context['form'] =  form
+			return render(request, 'gamesite/addgame.html', context)
+	elif request.method == 'POST':
+		#When the dev submits their edited game, we update the game
+		form = GameForm(request.POST)
+		if form.is_valid():
+			game.title = form.cleaned_data['title']
+			game.image_url = form.cleaned_data['image_url']
+			game.game_url = form.cleaned_data['game_url']
+			game.price = form.cleaned_data['price']
+			game.genre = form.cleaned_data['genre']
+			game.save()
+			context['message'] =  'Game updated'
+			return render(request, "gamesite/index.html", context)
+	return HttpResponse('Unauthorized', status=401) #if you are not the dev, you get this message
+
+@login_required(login_url="/login/")#the view below can only be accessed if user has logged in
+def deletegame(request, gametitle):
+	game = get_object_or_404(Game, websiteURL = gametitle)
+	context =  {'logouturl': '/logout', 'logout':'logout', 'title': game.title}
+	if request.method == 'GET':
+		#if you are the dev, you need to press a button in the page to delete the game
+		if game.developer.username == request.user.username:
+			return render(request, 'gamesite/deletegame.html', context)
+	elif request.method == 'POST':
+		#When the button is pressed, we delete the game
+		game.delete()
+		context['message'] = "Game: "+game.title+" has been deleted."
+		return render(request, "gamesite/index.html", context)
+	return HttpResponse('Unauthorized', status=401) #if you are not the dev, you get this message
 
 @login_required(login_url="/login/")#the view below can only be accessed if user has logged in
 def example_game(request):
@@ -189,7 +234,7 @@ def example_game(request):
 @login_required(login_url="/login/")#the view below can only be accessed if user has logged in
 def my_view(request):
 	context = {'logouturl': '/logout', 'logout':'logout'}
-	game = Game.objects.filter(developer = request.user)
+	game = Game.objects.filter(developer = request.user) # we get all the games you have uploaded
 	p = Payment.objects.all()
 	data = {}
 	data['games'] = game
@@ -198,11 +243,13 @@ def my_view(request):
 		dates = ''
 		for i in p:
 			n=i.pid.index('|')
+			#For each game, we check any Payments that are successfull and add those to the data dictionary
 			if i.pid[n+1:] == g.websiteURL and i.result=='success':
-				dates += str(g.title) +'|'+ datetime.datetime.strftime(i.date, "%Y-%m-%d %H:%M:%S") +'%'
+				#the string is in the form of: gameurl|date%gameurl|date%...
+				dates += str(g.websiteURL) +'|'+ datetime.datetime.strftime(i.date, "%Y-%m-%d %H:%M:%S") +'%'
 		data['dates'] += dates
 	data['user']=request.user
-	data['dates'] = data['dates'][0:-1]
+	data['dates'] = data['dates'][0:-1] #remove the final % -sign from the string as it is not needed
 	return render(request, 'gamesite/account.html', data)
 
 
@@ -216,7 +263,7 @@ def gameshop(request):
 			w=i.pid.index('|')
 			if i.pid[0:w] == user:
 				if i.result == 'success':
-						#list += Game.objects.get(websiteURL=i.pid[w+1:]).title+'|'
+						#we check the games the user has bought so the page shows a 'Play' button for them instead of 'Buy'
 						list += i.pid[w+1:]+'|'
 		list=list[0:-1]
 		context={'all_games' : all_games,'logouturl': '/logout', 'logout':'logout', 'boughtgames':list}
@@ -237,27 +284,29 @@ def payment(request, id):
 		return redirect('gameview', g.websiteURL)
 	form = PaymentForm()
 	pid = request.user.username+'|'+g.websiteURL
-	sid = g.sid
+	sid = 'gameshop' #the sites global sid
 	amount = g.price
-	secret_key = g.skey
+	secret_key = '0a37fc5ef6ecfee9f563ae8d2044b7cd' #the sites global secret key for the payment service
 	date = datetime.datetime.strftime(datetime.datetime.now(), "%Y-%m-%d %H:%M:%S")
 	checksumstr = "pid={}&sid={}&amount={}&token={}".format(pid, sid, amount, secret_key)
 	# checksumstr is the string concatenated above
 	m = md5(checksumstr.encode("ascii"))
 	checksum = m.hexdigest()
 	# checksum is the value that should be used in the payment request
+
+	#we check if the user already has a Payment for this game so that we wont create a new one...
 	found = False
 	list = Payment.objects.all()
 	for i in list:
 		if i.pid == pid:
 			if i.result == 'success':
-				return redirect('gameview', g.websiteURL)
+				return redirect('gameview', g.websiteURL) #if the user has already successfully bought the game, redirect to gamepage
 			else:
-				i.date = date
+				i.date = date #update the old Payment object
 				found = True
 				break
 	if not found:
-		payment = Payment.objects.create(pid=pid,sid = sid, checksum = checksum, result = 'unfinished', date=date)
+		payment = Payment.objects.create(pid=pid, price = g.price, checksum = checksum, result = 'unfinished', date=date)
 		payment.save()
 	data = {'form':form,'pid':pid,'sid':sid,'amount':amount,'checksum':checksum}
 
@@ -269,17 +318,24 @@ def payment(request, id):
 
 @login_required(login_url="/login")#the view below can only be accessed if user has logged in
 def paymentsuccess(request, id=None):
+	#we get the data the payment service sent back
 	pid = request.GET.get('pid', '')
 	result = request.GET.get('result', '')
 	ref = request.GET.get('ref', '')
 	checksum = request.GET.get('checksum', '')
+
+	#get the game and payment objects from db
 	i = pid.index('|')
 	game = get_object_or_404(Game, websiteURL=pid[i+1:])
-	secret_key = game.skey
+	secret_key = '0a37fc5ef6ecfee9f563ae8d2044b7cd'
 	p = get_object_or_404(Payment, pid=pid)
+
+	#generate checksum from the data we got from payment service
 	checksumstr= "pid={}&ref={}&result={}&token={}".format(pid, ref, result, secret_key)
 	m = md5(checksumstr.encode("ascii"))
 	checksum2 = m.hexdigest()
+
+	#check if the sums match and update payment object accordingly
 	if checksum2 == checksum:
 		p.result = result
 		p.ref = ref
@@ -311,8 +367,7 @@ def addgame(request):
             datas['game_url']=form.cleaned_data['game_url']
             datas['price']=form.cleaned_data['price']
             datas['websiteURL']=form.cleaned_data['websiteURL']
-            datas['sid']=form.cleaned_data['sid']
-            datas['skey']=form.cleaned_data['skey']
+
 
             g = Game.objects.create(developer=request.user,
 										title=datas['title'],
@@ -320,9 +375,7 @@ def addgame(request):
                                         image_url = datas['image_url'],
                                         game_url = datas['game_url'],
                                         price = datas['price'],
-                                        websiteURL = datas['websiteURL'],
-                                        sid = datas['sid'],
-                                        skey = datas['skey'])
+                                        websiteURL = datas['websiteURL'])
             g.save()
 
             return HttpResponseRedirect('/game/'+str(g.websiteURL))

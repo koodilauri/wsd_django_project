@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Index{% endblock %}
+{% block title %}Delete game{% endblock %}
 {{ block.super }}
 {% block style %}<link rel="stylesheet" type="text/css" href="{% static 'gamesite/style.css' %}">{% endblock %}
 
@@ -16,5 +16,11 @@
 {% endblock %}
 
 {% block content %}
-<p>{{message}}</p>
+<p>Deleting game: {{title}} <br/>
+  WARNING: Deleting a game is permanent.
+</p><form method="POST">
+    {% csrf_token %}
+     <button type="submit" class="button">Delete</button>
+</form>
+
 {% endblock %}

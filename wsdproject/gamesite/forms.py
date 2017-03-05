@@ -21,4 +21,4 @@ class PaymentForm(forms.Form):
 class GameForm(ModelForm):
     class Meta:
         model = Game
-        fields = ['title', 'game_url', 'price', 'image_url', 'websiteURL', 'sid', 'skey','genre']
+        fields = ['title', 'game_url', 'price', 'image_url', 'websiteURL', 'genre']

@@ -17,8 +17,6 @@ class Game(models.Model):
 	price = models.IntegerField(default=15)
 	image_url = models.URLField(default="")
 	websiteURL = models.CharField(max_length=225, blank=True)
-	sid = models.CharField(max_length=225, blank=True)
-	skey = models.CharField(max_length=225, blank=True)
 	genre = models.TextField(default="action")
 
 	def __str__(self):
@@ -37,14 +35,14 @@ class ScoreBoard(models.Model):
 class Payment(models.Model):
 	#payment = models.ForeignKey('UserProfile', on_delete=models.CASCADE)
 	pid = models.CharField(max_length=225, blank=True)
-	sid = models.CharField(max_length=225, blank=True)
+	price = models.IntegerField()
 	ref =  models.IntegerField(null=True)
 	checksum = models.CharField(max_length=225, blank=True)
 	result = models.CharField(max_length=20)
 	date = models.DateTimeField()
 
 	def __str__(self):
-		return self.pid + ',' + self.sid + ',{}'.format(self.ref)
+		return self.pid + ',' + str(self.price) + ',{}'.format(self.ref)
 
 class Save(models.Model):
 	game = models.ForeignKey(Game, related_name="saves")

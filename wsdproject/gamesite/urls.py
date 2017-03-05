@@ -22,6 +22,8 @@ urlpatterns = [
     url(r'^gamesave/$', views.save, name='save'),
 
     url(r'^game/(?P<gametitle>\w+)/$', views.gameview, name='gameview'),
+    url(r'^game/(?P<gametitle>\w+)/edit/$', views.editgame, name='editgame'),
+    url(r'^game/(?P<gametitle>\w+)/delete/$', views.deletegame, name='deletegame'),
     url(r"^addgame$", views.addgame, name='addgame'),
     url(r"^addgame/success$", views.gameview, name='addgame success'),
     url(r"^submitscore$", views.submit_score, name='submit_score'),
