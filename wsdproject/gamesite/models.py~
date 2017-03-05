@@ -45,9 +45,3 @@ class Payment(models.Model):
 
 	def __str__(self):
 		return self.pid + ',' + self.sid + ',{}'.format(self.ref)
-
-class Save(models.Model):
-	game = models.ForeignKey(Game, related_name="saves")
-	user = models.ForeignKey(User, default=0, related_name='player')
-	gamestate = models.TextField(max_length=200, blank=True, null=True)
-	#points = models.FloatField(null=True, blank=True)

@@ -14,7 +14,7 @@
 <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
 <script>
 var list = '{{dates}}';
-list = list.split('%');
+list = list.split('£');
 $(document).ready(function() {
   if (list !=''){
 for (var i=0; i< list.length;i++){

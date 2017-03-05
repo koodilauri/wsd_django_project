@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Index{% endblock %}
+{{ block.super }}
+{% block style %}<link rel="stylesheet" type="text/css" href="{% static 'gamesite/style.css' %}">{% endblock %}
+
+{% block upmenu %}
+{% include "gamesite/upmenu.html" %}
+{% endblock %}
+
+
+
+{% block sidemenu %}
+{% include "gamesite/sidemenu.html" %}
+{% endblock %}
+
+{% block content %}
+<p>Success adding the game</p>
+{% endblock %}

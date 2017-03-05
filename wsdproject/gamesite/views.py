@@ -7,7 +7,7 @@ from .forms import UserForm, PaymentForm, GameForm
 import hashlib, random, datetime
 from django.core.mail import send_mail
 from gamesite.models import UserProfile
-from gamesite.models import Game, ScoreBoard, Payment
+from gamesite.models import Game, ScoreBoard, Payment, Save
 from django.shortcuts import render
 from hashlib import md5
 from gamesite.models import Payment
@@ -18,10 +18,10 @@ from django.shortcuts import redirect
 
 def index(request):
 	if request.user.is_authenticated:
-		context = {'logouturl': '/logout', 'logout':'logout'}
+		context = {'logouturl': '/logout', 'logout':'logout', 'message':'Welcome'}
 		return render(request, "gamesite/index.html", context)
 	else:
-		context = {'loginurl': '/login', 'login':'login', 'registerurl':'/register', 'register':'register'}
+		context = {'loginurl': '/login', 'login':'login', 'registerurl':'/register', 'register':'register', 'message':'Welcome'}
 		return render(request, "gamesite/index.html", context)
 
 def register(request):
@@ -57,12 +57,13 @@ def register(request):
 				u.save()
 				profile=UserProfile()
 				profile.user=u
-				profile.activation_key='activate'#datas['activation_key']
+				profile.activation_key=datas['activation_key']
 				profile.key_expires=datetime.datetime.strftime(datetime.datetime.now() + datetime.timedelta(days=2), "%Y-%m-%d %H:%M:%S")
 				profile.save()
 				send_mail(datas['email_subject'], 'activate/'+ profile.activation_key, 'service@example.com', [profile.user.email], fail_silently=False,)
 				# redirect to a new URL:
-				return HttpResponse('Thank you for registering, an activation key has been sent to your email (check the console Django is runnin)')
+				context = {'loginurl': '/login', 'login':'login', 'registerurl':'/register', 'register':'register', 'message':'Thank you for registering, an activation key has been sent to your email (check the console Django is runnin), on heroku, you cant check console so here is the link: activate/'+ profile.activation_key}
+				return render(request, "gamesite/index.html", context)
 
 	# if a GET (or any other method) we'll create a blank form
 	else:
@@ -72,6 +73,7 @@ def register(request):
 
 def activation(request, key):
 	profile = get_object_or_404(UserProfile, activation_key=key)
+	context = {'loginurl': '/login', 'login':'login', 'registerurl':'/register', 'register':'register', 'message':'The user is already active'}
 	if profile.user.is_active == False:
 		fm = "%Y-%m-%d %H:%M:%S"
 		exdate = profile.key_expires
@@ -79,15 +81,18 @@ def activation(request, key):
 		if td.total_seconds() > 0:
 			profile.user.is_active = True
 			profile.user.save()
-			return HttpResponse('Username: '+profile.user.username+' has been activated')
+			context['message'] = 'Username: '+profile.user.username+' has been activated'
+			return render(request, "gamesite/index.html", context)
 	#If user is already active, simply display error message
 	else:
-		return HttpResponse('already active')
-	return HttpResponse('something went wrong with activation')
+		return render(request, "gamesite/index.html", context)
+	context['message'] = "Something went wrong eith activation..."
+	return render(request, "gamesite/index.html", context)
 
 def new_activation_link(request, username):
 	datas={}
 	user = get_object_or_404(User, username=username)
+	context = {'loginurl': '/login', 'login':'login', 'registerurl':'/register', 'register':'register', 'message':'The user is already active'}
 	if user is not None and not user.is_active:
 		datas['username']=user.username
 		datas['email']=user.email
@@ -108,14 +113,16 @@ def new_activation_link(request, username):
 		profile.key_expires = datetime.datetime.strftime(datetime.datetime.now() + datetime.timedelta(days=2), "%Y-%m-%d %H:%M:%S")
 		profile.save()
 
-		send_mail(datas['email_subject'], profile.activation_key, 'service@example.com', [profile.user.email], fail_silently=False,)
+		send_mail(datas['email_subject'], '/activate'+profile.activation_key, 'service@example.com', [profile.user.email], fail_silently=False,)
 		request.session['new_link']=True #Display: new link sent
+		context['message'] = 'A new activation key has been sent, check console Django is runnin. link is also provided here since you cant see the console on Heroku: activate/'+profile.activation_key
 
-	return HttpResponseRedirect('/')
+	return render(request, "gamesite/index.html", context)
 
 
 def thanks(request):
 	return HttpResponse("Thanks!")
+
 
 def submit_score(request):
 	if request.method == 'POST':
@@ -125,6 +132,31 @@ def submit_score(request):
 		print("jee se toimii")
 		print(request.POST.get("gameurl"))
 	return HttpResponse('Score submission done!')
+
+def save(request):
+	if request.method == 'POST':
+		gameurl = request.POST.get('gameurl')
+		game = Game.objects.get(websiteURL=request.POST.get('gameurl'))
+		user = request.user
+		gameState = request.POST.get('gameState')
+		if(Save.objects.filter(game=game, user = user).exists()):
+			save = Save.objects.get(game=game,user=user)
+			save.gamestate = gameState
+			save.save()
+		else:
+			save = Save(game = game, user=user, gamestate=gameState)
+			save.save()
+	elif request.method == 'GET':
+		game = Game.objects.get(websiteURL=request.GET.get("gameurl"))
+		user = request.user
+		if(Save.objects.filter(game=game, user=user).exists()):
+			save = Save.objects.get(game=game,user=user)
+			return HttpResponse(save.gamestate, content_type="text/plain", status=200)
+		else:
+			return HttpResponse()
+	return HttpResponse('/');
+
+
 
 @login_required(login_url="/login/")#the view below can only be accessed if user has logged in
 def gameview(request, gametitle):
@@ -167,7 +199,7 @@ def my_view(request):
 		for i in p:
 			n=i.pid.index('|')
 			if i.pid[n+1:] == g.websiteURL and i.result=='success':
-				dates += str(g.title) +'|'+ datetime.datetime.strftime(i.date, "%Y-%m-%d %H:%M:%S") +'#'
+				dates += str(g.title) +'|'+ datetime.datetime.strftime(i.date, "%Y-%m-%d %H:%M:%S") +'%'
 		data['dates'] += dates
 	data['user']=request.user
 	data['dates'] = data['dates'][0:-1]
@@ -200,32 +232,9 @@ def game_detail(request, id):
 
 @login_required(login_url="/login")#the view below can only be accessed if user has logged in
 def payment(request, id):
-	'''if request.method == 'POST':
-			form = PaymentForm(request.POST)
-			if form.is_valid():
-				amount = request.amount
-				secret_key = 'd09529cbffa750cc7a4c4c7ed88e49f7'
-				pid = request.pid
-				sid = request.sid
-
-				checksumstr = "pid={}&sid={}&amount={}&token={}".format(pid, sid, amount, secret_key)
-				# checksumstr is the string concatenated above
-				m = md5(checksumstr.encode("ascii"))
-				checksum = m.hexdigest()
-				# checksum is the value that should be used in the payment request
-
-				# process the data in form.cleaned_data as required
-				post_data = [('pid', pid),('sid',sid),('amount',amount),('success_url','gamesite/payment_success.html'),('cancel_url','gamesite/payment_cancel.html'),('error_url','gamesite/payment_error.html'),('checksum',checksum)]     # a sequence of two element tuples
-				result = urllib2.urlopen('http://payments.webcourse.niksula.hut.fi/pay/', urllib.urlencode(post_data))
-				content = result.read()
-				# redirect to a new URL:
-
-				return HttpResponse(my_json_data, content_type="application/json")
-
-	# if a GET (or any other method) we'll create a blank form
-
-else:'''
 	g = get_object_or_404(Game, id=id)
+	if g.developer.username == request.user.username:
+		return redirect('gameview', g.websiteURL)
 	form = PaymentForm()
 	pid = request.user.username+'|'+g.websiteURL
 	sid = g.sid
@@ -287,6 +296,8 @@ def paymentcancel(request, id=None):
 def paymenterror(request, id=None):
 	return render (request, 'gamesite/payment_error.html')
 
+
+
 @login_required(login_url="/login")#the view below can only be accessed if user has logged in
 def addgame(request):
     datas={}
@@ -314,7 +325,7 @@ def addgame(request):
                                         skey = datas['skey'])
             g.save()
 
-            return HttpResponse('Thank you for uploading a game!')
+            return HttpResponseRedirect('/game/'+str(g.websiteURL))
     else:
         form = GameForm()
 

@@ -19,10 +19,8 @@ urlpatterns = [
 	url(r'^payment/success$', views.paymentsuccess, name='payment success'),
 	url(r'^payment/payment_cancel$$', views.paymentcancel, name='payment cancel'),
 	url(r'^payment/payment_error$', views.paymenterror, name='payment error'),
-    url(r'^gamesave/$', views.save, name='save'),
 
     url(r'^game/(?P<gametitle>\w+)/$', views.gameview, name='gameview'),
     url(r"^addgame$", views.addgame, name='addgame'),
-    url(r"^addgame/success$", views.gameview, name='addgame success'),
-    url(r"^submitscore$", views.submit_score, name='submit_score'),
+    url(r"^submitscore$", views.submit_score, name='submit_score')
 ]

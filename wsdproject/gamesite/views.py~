@@ -57,7 +57,7 @@ def register(request):
 				u.save()
 				profile=UserProfile()
 				profile.user=u
-				profile.activation_key=datas['activation_key']
+				profile.activation_key='activate'#datas['activation_key']
 				profile.key_expires=datetime.datetime.strftime(datetime.datetime.now() + datetime.timedelta(days=2), "%Y-%m-%d %H:%M:%S")
 				profile.save()
 				send_mail(datas['email_subject'], 'activate/'+ profile.activation_key, 'service@example.com', [profile.user.email], fail_silently=False,)
